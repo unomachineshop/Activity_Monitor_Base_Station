@@ -91,6 +91,24 @@ def notifications_off(peripheral, uuid):
     peripheral.writeCharacteristic(notify_handle, setup_data, withResponse=True)
 
 ###########################################################
+# Name: write_fileno
+# Desc: 
+###########################################################
+def write_fileno(fileno):
+    with open("fileno.txt", "w+") as file:
+        file.write(fileno)
+
+###########################################################
+# Name: read_fileno
+# Desc: 
+###########################################################
+def read_fileno():
+    with open("fileno.txt", "r") as file:
+        fileno = file.read()
+
+    return fileno
+
+###########################################################
 # Name: fcode
 # Desc: String formatter to specify how many letters the
 # BLE connection will be sending to the activity monitor.
@@ -136,15 +154,16 @@ def receive_data(peripheral, notification):
                 msg = notification.get_message()
                 #data += msg
                 data.append(msg)
+                if("file" in msg):
+                    print(msg)
+                #print(msg)
                 continue
-            #print("Waiting...")
 
-    except:
-        print("Device lost connection during data transfer!")
+    except BTLEException as e:
+        print(e)
 
     
     return ''.join(data)
-    #return data
     
 ############################################################
 # Name: set_time
@@ -152,16 +171,12 @@ def receive_data(peripheral, notification):
 ############################################################
 def set_time(peripheral, uuid):
     #send_command(actimo, uuid, fcode("settime"), b"settime")
-    ymd = datetime.now().strftime("%Y,%m,%d,")
-    hms = datetime.now().strftime("%H,%M,%S")
-    print(ymd)
-    print(sys.getsizeof(ymd.encode()))
-    
-    print(hms)
-    print(sys.getsizeof(hms.encode()))
-   
-    #send_command(actimo, uuid, fcode(time), "{}".format(time).encode())
+    dt = datetime.now().strftime("%Y,%m,%d,%H,%M,%S")
 
+    send_command(actimo, uuid, "settime,")
+    time.sleep(.5) # necessary, the Pi may be to fast. 
+    send_command(actimo, uuid, dt)
+    
 ###########################################################
 # Name: get_time
 # Desc: 
@@ -170,7 +185,6 @@ def get_time(peripheral, notification):
     send_command(actimo, WRITE_CHAR_UUID, "gettime") 
     notifications_on(actimo, READ_CHAR_UUID)
     receive_data(actimo, nd) # Might go before send command
-    # Potentially read_from_device() as well
     notifications_off(actimo, READ_CHAR_UUID)
 
 ###########################################################
@@ -187,7 +201,9 @@ def stop(peripheral, uuid):
 ##########################################################
 if __name__ == "__main__":
 
-    ACTIVITY_MAC =      "ec:01:25:f5:3d:b4"
+    #ACTIVITY_MAC =      "ec:01:25:f5:3d:b4"
+    ACTIVITY_MAC =      "f2:3f:39:f8:4d:35"
+
     ADDRESS_TYPE =      "random"
     SERVICE_UUID =      "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
     WRITE_CHAR_UUID =   "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
@@ -199,33 +215,60 @@ if __name__ == "__main__":
     actimo.setDelegate(nd) 
     
     # Box Setup
-    bx = Box()
-    bx.connect_to_box()
-    
+    #bx = Box()
+    #bx.connect_to_box()
+   
+
     """
+    # Breakage testing for forever.py and crontab -e
+    while(True):
+        print("Alive")
+        time.sleep(10)
+        print("Dead")
+        s = 10 / 0
+        time.sleep(1)
+    """
+
+
+    
     ###############################################
     #### Testing ##################################
     ###############################################
     # Connecting to device
+    
     connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
-   
-    send_command(actimo, WRITE_CHAR_UUID, "comm")
-    notifications_on(actimo, READ_CHAR_UUID)
-    x = read_data(actimo, nd)
+
+    # Good!
+    #send_command(actimo, WRITE_CHAR_UUID, "comm,20")
+    
+    #notifications_on(actimo, READ_CHAR_UUID)
+    
+    #x = receive_data(actimo, nd)
     #notifications_off(actimo, WRITE_CHAR_UUID)
     
+    #Good!
+    #set_time(actimo, WRITE_CHAR_UUID)
+
     # Disconnect device
     disconnect(actimo)
     
-    
-    bx.connect_to_box()
-    bx.write_to_file(x)
-    bx.upload_file() 
-    
+
+    """
+    # Success
+    write_fileno("10")
+    print(read_fileno())
+
+    write_fileno("13")
+    print(read_fileno())
+    """
+
+
+    #bx.connect_to_box()
+    #bx.write_to_file(x)
+    #bx.upload_file() 
     
     #send_data(actimo, nd, WRITE_CHAR_UUID, READ_CHAR_UUID)
     #bx.upload_file()
     #set_time(actimo, WRITE_CHAR_UUID)
     #stop(actimo, WRITE_CHAR_UUID)
    ###############################################
-   """
