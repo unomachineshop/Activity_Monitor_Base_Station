@@ -41,8 +41,31 @@ def within_range(mac):
             print("Device was found!")
             return True
 
+    time.sleep(1)
     print("Device wasn't found...")
     return False
+
+#######################################################
+# Name: connection_checks
+# Desc: Used in conjunction with within_range(). Will
+# run a series of three tests to check if the device
+# is within range and ready for communication.
+# If device is never found, it WILL run forever.
+#######################################################
+def connection_checks(mac):
+    checks = []
+    while len(checks) < 3:
+        # Device WAS found during scan
+        if within_range(mac):
+            checks.append("PASS")
+            print("Found device! [PASS {}] <(^.^)>".format(len(checks)))
+
+        # Device was NOT found during scan
+        else:
+            check = []
+            print("Device not found! [Failure] <(-.-)>")
+
+    return True
 
 ############################################################
 # Name: connect
@@ -53,7 +76,7 @@ def connect(peripheral, mac, addr_type):
         print("Attempting to connect to device...")
         peripheral.connect(mac, addr_type)
         print("Connection successful!")
-    except BTLEExcpetion as e:
+    except BTLEException as e:
         print(e)
 
 ############################################################
@@ -144,27 +167,29 @@ def send_command(peripheral, uuid, cmd):
 ############################################################
 def receive_data(peripheral, notification):
     data = []
-    #data = ""
     msg = ""
 
     try:
-        while "end" not in msg:
+        #while "end" not in msg:
+        while True:
             if actimo.waitForNotifications(1.0):
                 # handleNotification() was called
                 msg = notification.get_message()
-                #data += msg
                 data.append(msg)
-                if("file" in msg):
-                    print(msg)
-                #print(msg)
+
+                print(msg)
+
+                if "end" in msg:
+                    msg = ""
+                    break
+
                 continue
 
     except BTLEException as e:
         print(e)
 
-    
     return ''.join(data)
-    
+
 ############################################################
 # Name: set_time
 # Desc:
@@ -174,9 +199,9 @@ def set_time(peripheral, uuid):
     dt = datetime.now().strftime("%Y,%m,%d,%H,%M,%S")
 
     send_command(actimo, uuid, "settime,")
-    time.sleep(.5) # necessary, the Pi may be to fast. 
+    time.sleep(1) # necessary, the Pi may be to fast. 
     send_command(actimo, uuid, dt)
-    
+
 ###########################################################
 # Name: get_time
 # Desc: 
@@ -201,24 +226,61 @@ def stop(peripheral, uuid):
 ##########################################################
 if __name__ == "__main__":
 
-    #ACTIVITY_MAC =      "ec:01:25:f5:3d:b4"
     ACTIVITY_MAC =      "f2:3f:39:f8:4d:35"
-
     ADDRESS_TYPE =      "random"
     SERVICE_UUID =      "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
     WRITE_CHAR_UUID =   "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
     READ_CHAR_UUID  =   "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
-    # Activity Monitor setup
+    # Activity monitor setup
     actimo = Peripheral(None)
     nd = NotificationDelegate(DefaultDelegate)
     actimo.setDelegate(nd) 
-    
-    # Box Setup
-    #bx = Box()
-    #bx.connect_to_box()
-   
 
+    # Box Setup
+    bx = Box()
+    #bx.connect_to_box() #Might not need, shifted to constructor
+
+
+    ################
+    # Control Loop #
+    ################
+    while True:
+        # Wait until peripheral is ready
+        connection_checks(ACTIVITY_MAC)    
+
+        # Connect to peripheral
+        connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
+
+        # Acquire last file number read from peripheral
+        fn = read_fileno()
+
+        # Update peripheral with new time stamp
+        set_time(actimo, WRITE_CHAR_UUID)
+        time.sleep(1)
+
+        # Turn peripheral notifications on
+        notifications_on(actimo, READ_CHAR_UUID)
+
+        # Begin communication, starting from specified file number
+        send_command(actimo, WRITE_CHAR_UUID, "comm,{}".format(fn)) 
+
+        # Read in all data until terminate command is read
+        x = receive_data(actimo, nd)
+
+        # Write all received information to a file
+        bx.write_to_file(x)
+
+        # Upload file to Box
+        bx.upload_file()
+
+        # Disconnect from peripheral
+        disconnect(actimo)
+
+
+    while True:
+        connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
+        notifications_on
     """
     # Breakage testing for forever.py and crontab -e
     while(True):
@@ -228,47 +290,3 @@ if __name__ == "__main__":
         s = 10 / 0
         time.sleep(1)
     """
-
-
-    
-    ###############################################
-    #### Testing ##################################
-    ###############################################
-    # Connecting to device
-    
-    connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
-
-    # Good!
-    #send_command(actimo, WRITE_CHAR_UUID, "comm,20")
-    
-    #notifications_on(actimo, READ_CHAR_UUID)
-    
-    #x = receive_data(actimo, nd)
-    #notifications_off(actimo, WRITE_CHAR_UUID)
-    
-    #Good!
-    #set_time(actimo, WRITE_CHAR_UUID)
-
-    # Disconnect device
-    disconnect(actimo)
-    
-
-    """
-    # Success
-    write_fileno("10")
-    print(read_fileno())
-
-    write_fileno("13")
-    print(read_fileno())
-    """
-
-
-    #bx.connect_to_box()
-    #bx.write_to_file(x)
-    #bx.upload_file() 
-    
-    #send_data(actimo, nd, WRITE_CHAR_UUID, READ_CHAR_UUID)
-    #bx.upload_file()
-    #set_time(actimo, WRITE_CHAR_UUID)
-    #stop(actimo, WRITE_CHAR_UUID)
-   ###############################################

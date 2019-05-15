@@ -17,7 +17,17 @@ class Box():
         # Remote
         self.SHARED_FOLDER =    "75253867312" # Activity Monitor folderid
         self.client = ""
+        
+        # Retrieve authentication information from config file
+        auth = JWTAuth.from_settings_file(self.CONFIG_PATH)
+        # Authenticate applications token
+        access_token = auth.authenticate_instance()
+        # Authorize application client
+        self.client = Client(auth)
+        
 
+
+    ## MAY REMOVE THIS
     #########################################################
     # Name: connect_to_box
     # Desc: Sets up authentication via JWT access tokens to
