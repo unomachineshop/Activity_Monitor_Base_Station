@@ -5,6 +5,7 @@ from struct import *
 from datetime import datetime
 from bluepy.btle import DefaultDelegate, Peripheral, Scanner
 from collections import OrderedDict
+from collections import deque
 
 # Asynchronous delegates
 from notification_delegate import NotificationDelegate
@@ -105,7 +106,7 @@ def notifications_on(peripheral, uuid):
 ############################################################
 # Name: notifications_off
 # Desc: Write the "off" code to the CCCD to turn off
-# asynchronous notifications.
+# asynchronous notifications. (Not currently used)
 ############################################################
 def notifications_off(peripheral, uuid):
     setup_data = "\x00\x00".encode()
@@ -115,19 +116,55 @@ def notifications_off(peripheral, uuid):
 
 ###########################################################
 # Name: write_fileno
-# Desc: 
+# Desc: Writes the file number to a file for persistant
+# storage.
 ###########################################################
-def write_fileno(fileno):
-    with open("fileno.txt", "w+") as file:
-        file.write(fileno)
+def write_fileno(path,fileno):
+    with open(path, "w+") as f:
+        f.write(fileno)
 
 ###########################################################
 # Name: read_fileno
-# Desc: 
+# Desc: Reads the file number from a file for persistant
+# storage.
 ###########################################################
-def read_fileno():
-    with open("fileno.txt", "r") as file:
-        fileno = file.read()
+def read_fileno(path):
+    with open(path, "r") as f:
+        fileno = f.read()
+        
+        # In the event nothing was read, start over
+        if(fileno == ""):
+            fileno = 1
+
+    return fileno
+
+###########################################################
+# Name: fileno_parse
+# Desc: Takes the last few strings received from the 
+# peripheral and attempts to parse out the file number.
+###########################################################
+def fileno_parse(string):
+    try:
+        # Find first occurence of ',end'
+        pos = string.find(",end")
+        # Truncate string, removing end and anything after
+        trunc  = string[:pos]
+        # Split string by comma
+        split = trunc.split(",")
+        # Grab last element, indicating the file no
+        fn = split[-1]
+        # Remove newline characters for fileno element
+        fileno = fn.replace("\n", "")
+        
+        # Newline occured between 'e' and 'd'
+        if(fileno == "end"):
+            fn = split[-2]
+            fileno = fn.replace("\n", "")
+
+        print(fileno)
+    except IndexError as e:
+        print("Failed to parse out the last received file number!")
+        print(e)
 
     return fileno
 
@@ -141,7 +178,9 @@ def read_fileno():
 def fcode(string):
     l = len(string)
     s = "<{}s".format(l)
+
     return s
+
 
 ############################################################
 # Name: send_command
@@ -163,63 +202,37 @@ def send_command(peripheral, uuid, cmd):
 
 ############################################################
 # Name: receive_data
-# Desc: Receives data from the peripheral. 
+# Desc: Receives data from the peripheral. Returns it as a
+# list. 
 ############################################################
 def receive_data(peripheral, notification):
     data = []
     msg = ""
 
     try:
-        #while "end" not in msg:
-        while True:
+        while "end" not in msg:
             if actimo.waitForNotifications(1.0):
                 # handleNotification() was called
                 msg = notification.get_message()
                 data.append(msg)
-
                 print(msg)
-
-                if "end" in msg:
-                    msg = ""
-                    break
-
                 continue
 
     except BTLEException as e:
         print(e)
 
-    return ''.join(data)
+    return data
 
 ############################################################
 # Name: set_time
-# Desc:
+# Desc: Grabs the current date/time, formats it, sends it
+# to the peripheral.
 ############################################################
 def set_time(peripheral, uuid):
-    #send_command(actimo, uuid, fcode("settime"), b"settime")
     dt = datetime.now().strftime("%Y,%m,%d,%H,%M,%S")
-
     send_command(actimo, uuid, "settime,")
     time.sleep(1) # necessary, the Pi may be to fast. 
     send_command(actimo, uuid, dt)
-
-###########################################################
-# Name: get_time
-# Desc: 
-###########################################################
-def get_time(peripheral, notification):
-    send_command(actimo, WRITE_CHAR_UUID, "gettime") 
-    notifications_on(actimo, READ_CHAR_UUID)
-    receive_data(actimo, nd) # Might go before send command
-    notifications_off(actimo, READ_CHAR_UUID)
-
-###########################################################
-# Name: stop
-# Desc: 
-###########################################################
-def stop(peripheral, uuid):
-    send_command(actimo, uuid, "stop")
-
-
 
 ##########################################################
 ### Main Module ##########################################
@@ -232,14 +245,15 @@ if __name__ == "__main__":
     WRITE_CHAR_UUID =   "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
     READ_CHAR_UUID  =   "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
+    FILENO_PATH =       "/home/pi/Activity_Monitor_Base_Station/base_station/fileno.txt"
+
     # Activity monitor setup
     actimo = Peripheral(None)
     nd = NotificationDelegate(DefaultDelegate)
-    actimo.setDelegate(nd) 
+    actimo.setDelegate(nd)
 
     # Box Setup
     bx = Box()
-    #bx.connect_to_box() #Might not need, shifted to constructor
 
 
     ################
@@ -253,7 +267,7 @@ if __name__ == "__main__":
         connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
 
         # Acquire last file number read from peripheral
-        fn = read_fileno()
+        fn = read_fileno(FILENO_PATH)
 
         # Update peripheral with new time stamp
         set_time(actimo, WRITE_CHAR_UUID)
@@ -263,25 +277,27 @@ if __name__ == "__main__":
         notifications_on(actimo, READ_CHAR_UUID)
 
         # Begin communication, starting from specified file number
-        send_command(actimo, WRITE_CHAR_UUID, "comm,{}".format(fn)) 
+        send_command(actimo, WRITE_CHAR_UUID, "comm,{}".format(fn))
 
-        # Read in all data until terminate command is read
-        x = receive_data(actimo, nd)
+        # Read in all data until 'end' command is read
+        data = receive_data(actimo, nd)
+
+        # Update file number
+        write_fileno(FILENO_PATH, fileno_parse("".join(data[-6:])))
 
         # Write all received information to a file
-        bx.write_to_file(x)
+        bx.write_to_file("".join(data))
 
         # Upload file to Box
         bx.upload_file()
 
         # Disconnect from peripheral
-        disconnect(actimo)
+        disconnect(actimo) 
 
-
-    while True:
-        connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
-        notifications_on
+    
     """
+    # Test code for cronjob and forever.py
+    connection_checks(ACTIVITY_MAC)
     # Breakage testing for forever.py and crontab -e
     while(True):
         print("Alive")

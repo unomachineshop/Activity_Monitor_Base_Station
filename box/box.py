@@ -25,31 +25,14 @@ class Box():
         # Authorize application client
         self.client = Client(auth)
         
-
-
-    ## MAY REMOVE THIS
-    #########################################################
-    # Name: connect_to_box
-    # Desc: Sets up authentication via JWT access tokens to
-    # the enterprise application. This approach allows the 
-    # script to always get authenticated automatically. 
-    #########################################################
-    def connect_to_box(self):
-        # Retrieve authentication information from config file
-        auth = JWTAuth.from_settings_file(self.CONFIG_PATH)
-        # Authenticate applications token
-        access_token = auth.authenticate_instance()
-        # Authorize application client
-        self.client = Client(auth)
-  
     #########################################################
     # Name: write_to_file
     # Desc: Writes a chunk of data to a file.
     #########################################################
     def write_to_file(self, data):
         try:
-            with open(self.FILE_WRITE_PATH, 'w') as file:
-                file.write(data)
+            with open(self.FILE_WRITE_PATH, 'w') as f:
+                f.write(data)
         except IOError as e:
             print(e)
 
