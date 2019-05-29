@@ -127,7 +127,24 @@ mv public authorized_keys
 * Now you can fire up PuTTY, input the IP address we used earlier into the Host Name field. 
 * On the left hand side choose *SSH* -> *Auth* -> and in the private key field, browse for your newly created private key file.
 * Back in the *Session* tab, be sure to give the *Saved Session* a name, and then hit *Save* before proceeding to connect. This will save you in the future from having to go update those values.
-* Go ahead and try to connect now. Once you enter your username it should automatically log you in. If you happen to get a "server refused our key" message check out this article located [here](http://www.walkernews.net/2009/03/22/how-to-fix-server-refused-our-key-error-that-caused-by-putty-generated-rsa-public-key/)
+* Go ahead and try to connect now. Once you enter your username it should automatically log you in. If you happen to get a "server refused our key" message check out this article located [here](http://www.walkernews.net/2009/03/22/how-to-fix-server-refused-our-key-error-that-caused-by-putty-generated-rsa-public-key/) to properly format the file.  
+  
+10) We will now install a few needed pieces of software on the Pi to allow us to build the actual project.  
+```
+sudo apt-get install git python3-pip libglib2.0-dev  
+sudo pip3 install bluepy
+sudo pip3 install boxsdk
+```  
+ This will install all packages needed to run the base station code. 
+  
+11) We can now pull in the code base from GitHub by issuing the following...
+```
+cd /home/pi
+git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
+```  
+
+12) 
+
 
 
 
