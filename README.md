@@ -107,18 +107,27 @@ Here is an example which configures a static address, routes and dns.
        static domain_name_servers=Value4
 ```  
 At this point we now have a static ip address, that is independent of whatever network we are connected. Without this step, it is possible that the Pi's ip address could change each time we connect to a network. It is now a good idea to try and use Putty to connect to the Pi remotely before proceeding to the next steps.  
-* First you will need to download [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+* First you will need to download [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) on your local computer.
 * In the Host Name field, enter the ip address we found from above. (Value2, without the /16 at the end, 10.12.18.255 for instance)
 * Click open, agree to the popup and proceed to log in using the default login.
   
 We can now begin setting up the public and private keys for automatic login, while maintaining a high level of security. To begin we will need to generate a public and private key pair. 
-* On the Pi run the command ```ssh-keygen```, and just hit enter through the default questions, no password needed. This command will generate your public (id_rsa.pub) and private key (id.rsa) pairs to the directory /home/pi/.ssh.  
-* The public key (id_rsa.pub) will stay on the Pi...
-```mv id_rsa.pub authorized_keys```  Name change for default SSH configuration
-```sudo chmod 400 authorized_keys``` Permission change (read only)
-* The private key (id_rsa) will need to be relocated to somehwere on your desktop. In order to move the file, you can mount a USB drive to the Pi and manually transfer it, or you can use a program such as [WinSCP](https://winscp.net/eng/index.php) to remotely transfer files. WinSCP uses the same exact ip address that we used for PuTTy. Either way way will work, just make note of where you saved the file on your local machine.  
-* Once the private key is transferred, fire up PuTTy. On the left hand side expand *SSH* and then click on *Auth*. 
-* Browse for your newly transferred private key and select it. Now back in the *Session* tab, simply input your ip address again
+* PuTTy comes with a program called PuttyGen which will generate our public and private key pairs. Start it up and click on generate. Moving your mouse to generate entropy. Save both the public and private keys somehwere you will remember. 
+* Now on the pi do the following...
+```
+cd /home/pi  
+mkdir .ssh
+sudo chmod 700 .ssh
+```
+* Now using a program such as [WinSCP](https://winscp.net/eng/index.php) you can remotely transfer files using the same ip address we used to log in with PuTTy. So transfer **ONLY** the public key to the newly created .ssh directory. Once the new public is transferred, run the following...
+```
+sudo chmod 700 public
+mv public authorized_keys
+```
+* Now you can fire up PuTTY, input the IP address we used earlier into the Host Name field. 
+* On the left hand side choose *SSH* -> *Auth* -> and in the private key field, browse for your newly created private key file.
+* Back in the *Session* tab, be sure to give the *Saved Session* a name, and then hit *Save* before proceeding to connect. This will save you in the future from having to go update those values.
+* Go ahead and try to connect now. Once you enter your username it should automatically log you in. If you happen to get a "server refused our key" message check out this article located [here](http://www.walkernews.net/2009/03/22/how-to-fix-server-refused-our-key-error-that-caused-by-putty-generated-rsa-public-key/)
 
 
 
