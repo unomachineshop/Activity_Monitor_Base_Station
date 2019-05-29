@@ -90,10 +90,10 @@ sudo apt-get upgrade
 9) With the Pi now connected to the internet we can look into setting up the remote connection via SSH. The remote connection will 
 allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called Putty. Please not using this method, it is possible that there is a static ip name collision, in which case you will have to try a few different values for *static ip_address* found below...
 
-We will first need gather some information on the Raspberry Pi side.
-**Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*
+We will first need gather some information on the Raspberry Pi side.  
+**Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*  
 **Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, for example something like 10.12.18.255/16  
-**Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255 
+**Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255  
 **Value4:** ```cat /etc/resolv.conf``` Take note of the nameserver value, something like 137.48.1.255  
   
 Now we need to edit the file /etc/dhcpcd.conf  
@@ -113,10 +113,12 @@ At this point we now have a static ip address, that is independent of whatever n
   
 We can now begin setting up the public and private keys for automatic login, while maintaining a high level of security. To begin we will need to generate a public and private key pair. 
 * On the Pi run the command ```ssh-keygen```, and just hit enter through the default questions, no password needed. This command will generate your public (id_rsa.pub) and private key (id.rsa) pairs to the directory /home/pi/.ssh.  
-* The public key will stay on the Pi...
+* The public key (id_rsa.pub) will stay on the Pi...
 ```mv id_rsa.pub authorized_keys```  Name change for default SSH configuration
 ```sudo chmod 400 authorized_keys``` Permission change (read only)
-* The private key will need to be located somehwere on your desktop. In order to move the file, you can mount a USB drive to the Pi and manually transfer it, or you can use a program such as [WinSCP](https://winscp.net/eng/index.php) to remotely transfer files. Uses the same exact ip address that we used for PuTTy. Either way way will work, just make not of where you saved the file on your local machine.
+* The private key (id_rsa) will need to be relocated to somehwere on your desktop. In order to move the file, you can mount a USB drive to the Pi and manually transfer it, or you can use a program such as [WinSCP](https://winscp.net/eng/index.php) to remotely transfer files. WinSCP uses the same exact ip address that we used for PuTTy. Either way way will work, just make note of where you saved the file on your local machine.  
+* Once the private key is transferred, fire up PuTTy. On the left hand side expand *SSH* and then click on *Auth*. 
+* Browse for your newly transferred private key and select it. Now back in the *Session* tab, simply input your ip address again
 
 
 
