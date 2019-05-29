@@ -145,7 +145,23 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
 
 12) At this point we are very close to being able to run the project. A single file is left missing that contains sensitive information in regards to being able to log into Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
 * First, create an account at [Box](https://www.box.com/home)
-* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key for your specified project. Box does a really nice job of setting this up rather painless. This is a JWT authentication application, so you should proceed as such. You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory */home/pi/Activity_Monitor_Base_Station/box*
+* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key for your specified project. Box does a really nice job of setting this up rather painless. This is a JWT authentication application, so you should proceed as such. 
+* You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory */home/pi/Activity_Monitor_Base_Station/box*  
+* You will end up a file similair to this, (Obviously all the "quoted" values have been changed for security reasons, but this is to give you an idea of what you should end up with roughly.)
+```
+{
+  "boxAppSettings": {
+    "clientID": "alphanumeric567345",
+    "clientSecret": "alphanumeric345345",
+    "appAuth": {
+      "publicKeyID": "alphanumeric123123",
+      "privateKey": "-----BEGIN ENCRYPTED PRIVATE KEY-----\nblahsecretdigits1-08fasd0f-98asdf0af-8a7sfd-8a7s89v-a8df7as8df-0as8fd7u-\nFSI=\n-----END ENCRYPTED PRIVATE KEY-----\n",
+      "passphrase": "blahsecretdigits123123aesrf3"
+    }
+  },
+  "enterpriseID": "digits0a8134"
+}
+```
 
 
 
