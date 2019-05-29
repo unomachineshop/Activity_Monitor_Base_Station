@@ -134,6 +134,7 @@ mv public authorized_keys
 sudo apt-get install git python3-pip libglib2.0-dev  
 sudo pip3 install bluepy
 sudo pip3 install boxsdk
+sudo pip3 install boxsdk[jwt]
 ```  
  This will install all packages needed to run the base station code. 
   
@@ -162,9 +163,15 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
   "enterpriseID": "digits0a8134"
 }
 ```
-
-
-
+13) At this point you can successfully run the program manually by issuing the following...
+```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
+It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this program at least, to ensure that all the work up to this point is 100% correct.  
+  
+14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
+```sudo crontab -e``` this opens up the super user's crontab page. (Needed for BLE scanning)  
+Then add the following anywhere in the file...  
+```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
+Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is range of the activity monitor peripheral.
 
 
 
