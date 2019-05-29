@@ -106,10 +106,17 @@ Here is an example which configures a static address, routes and dns.
        static routers=Value3
        static domain_name_servers=Value4
 ```  
-
-
-
-
+At this point we now have a static ip address, that is independent of whatever network we are connected. Without this step, it is possible that the Pi's ip address could change each time we connect to a network. It is now a good idea to try and use Putty to connect to the Pi remotely before proceeding to the next steps.  
+* First you will need to download [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+* In the Host Name field, enter the ip address we found from above. (Value2, without the /16 at the end, 10.12.18.255 for instance)
+* Click open, agree to the popup and proceed to log in using the default login.
+  
+We can now begin setting up the public and private keys for automatic login, while maintaining a high level of security. To begin we will need to generate a public and private key pair. 
+* On the Pi run the command ```ssh-keygen```, and just hit enter through the default questions, no password needed. This command will generate your public (id_rsa.pub) and private key (id.rsa) pairs to the directory /home/pi/.ssh.  
+* The public key will stay on the Pi...
+```mv id_rsa.pub authorized_keys```  Name change for default SSH configuration
+```sudo chmod 400 authorized_keys``` Permission change (read only)
+* The private key will need to be located somehwere on your desktop. In order to move the file, you can mount a USB drive to the Pi and manually transfer it, or you can use a program such as [WinSCP](https://winscp.net/eng/index.php) to remotely transfer files. Uses the same exact ip address that we used for PuTTy. Either way way will work, just make not of where you saved the file on your local machine.
 
 
 
