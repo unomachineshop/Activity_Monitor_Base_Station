@@ -36,21 +36,29 @@ password: raspberry
 ```
 sudo raspi-config  
 ```
+**Automatic Login Setup**  
+On boot, the Pi will automatically log us in without user name or password.  
+Choose *Boot Options* -> *Desktop / CLI* -> *Console Autologin* 
+
+**SSH Setup**  
+This will allow us to later on configure SSH to remotely boot into the Pi.
+Choose *Interfacing Options* -> *SSH* -> *YES!*  
+  
 **Locale Setup**
 Central U.S.A. setup, may be different depending on your location...  
 Choose *Localisation Options* -> *Change Locale* -> uncheck *en_GB.UTF-8 UTF-* -> check *en_US.UTF-8 UTF-8.  
 Choose *Localisation Options* -> *Change Timezone* -> choose *US* -> *Central*  
 You will want to edit the file /etc/default/keyboard and change the *XKBLAYOUT="gb"* to *XKBLAYOUT="us"*  
-You can now reboot, ```sudo reboot```  
+You can now reboot,  
+```sudo reboot```  
 
 **Network Setup**
 If you are plugged in directly via an ethernet cable, you can skip the following *Network Setup* guide. 
 This section covers a very brief basic setup of connecting to your wifi via the Pi.
 Choose *Network Options* -> *Wi-fi* -> proceed to enter your networks name and password.  
-You can test your connection via...
-```
-ping google.com
-```  
+You can test your connection via...  
+```ping google.com```  
+  
 In some situations this may not work entirely depending on your network setup, in which case you will have to do some digging on your own. In my case, I'm on a public college network that requires a username and password. You can add the following file to /etc/wpa_supplicant/wpa_supplicant.conf, you will need to use the ```nano``` text editor to make changes for which there a multiple guides online how to use.  
 ```
 ctrl_interface=/run/wpa_supplicant.conf GROUP=netdev
@@ -63,20 +71,29 @@ network={
 	pariwise=CCMP TKIP
  group=CCMP TKIP
 	eap=PEAP
-	identity="blahblah@blah.com"
+	identity="yourusername"
 	password="secretsecret"
 	phase1="peapver=0"
 	phase2="MSCHAPV2"
 }
 ```
+At this point it's a good idea to reboot the system to allow all the changes to take effect, including automatically connecting to the wifi.  
+```sudo reboot```
   
 8) With the network now setup, we can run the following to ensure the Pi and it's repositories are up to date.  
+*This can take a while...*
 ```
 sudo apt-get update
 sudo apt-get upgrade
 ```
   
-9) 
+9) With the Pi now connected to the internet we can look into setting up the remote connection via SSH. The remote connection will 
+allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called *Putty*.
+
+
+
+
+
 
 
 
