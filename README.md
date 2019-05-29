@@ -88,7 +88,27 @@ sudo apt-get upgrade
 ```
   
 9) With the Pi now connected to the internet we can look into setting up the remote connection via SSH. The remote connection will 
-allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called *Putty*.
+allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called Putty. Please not using this method, it is possible that there is a static ip name collision, in which case you will have to try a few different values for *static ip_address* found below...
+
+We will first need gather some information on the Raspberry Pi side.
+**Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*
+**Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, for example something like 10.12.18.255/16  
+**Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255 
+**Value4:** ```cat /etc/resolv.conf``` Take note of the nameserver value, something like 137.48.1.255  
+  
+Now we need to edit the file /etc/dhcpcd.conf  
+```nano /etc/dhcpcd.conf```  
+And then add the following, substituting the values found above into there respected locations marked below.  
+```
+Here is an example which configures a static address, routes and dns.
+       interface Value1
+       static ip_address=Value2
+       static routers=Value3
+       static domain_name_servers=Value4
+```  
+
+
+
 
 
 
