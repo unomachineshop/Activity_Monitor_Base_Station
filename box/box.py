@@ -15,7 +15,7 @@ class Box():
         self.FILE_WRITE_PATH =  "/home/pi/Activity_Monitor_Base_Station/box/write.txt"
         
         # Remote
-        self.SHARED_FOLDER =    "75253867312" # Activity Monitor folderid
+        self.SHARED_FOLDER =    "75253867312" # Default folder id
         self.client = ""
         
         # Retrieve authentication information from config file
@@ -43,17 +43,18 @@ class Box():
     # manually go to admin panel > content > share, and 
     # specifiy the email address of whoever needs access.
     #########################################################
-    def create_box_folder(self, parent_id, folder_name):
-        #folder_name = "Activity Data"
-        #folder_id = 0 # Root level
+    def create_box_folder(self):
+        folder_name = "Activity_Monitor"
+        folder_id = 0 # Root level
         try:
-            folder = self.client.folder(folder_id=parent_id).create_subfolder(folder_name)
-            return True
+            folder = self.client.folder(folder_id).create_subfolder(folder_name)
+            print("Successfully created box folder, do not run this command again!")
+            print("Folder ID:" +  folder.id)
+            self.SHARED_FOLDER = folder.id
+    
         except BoxAPIException as e:
             print(e)
-
-        print(folder)
-        return False
+            print("Failed to create box folder, check wifi, and ensure folder wasn't already created!")
 
     #########################################################
     # Name: upload_file
@@ -69,11 +70,3 @@ class Box():
             print(e)
         
         return False
-
-
-### Test Code ###
-#b = Box()
-#b.connect_to_box()
-#b.create_box_folder(0, "Activity Data")
-#b.upload_file()
-

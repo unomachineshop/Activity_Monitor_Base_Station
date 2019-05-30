@@ -145,28 +145,18 @@ def read_fileno(path):
 ###########################################################
 def fileno_parse(string):
     try:
-        # Find first occurence of ',end'
-        pos = string.find(",end")
-        # Truncate string, removing end and anything after
-        trunc  = string[:pos]
-        # Split string by comma
-        split = trunc.split(",")
-        # Grab last element, indicating the file no
-        fn = split[-1]
-        # Remove newline characters for fileno element
-        fileno = fn.replace("\n", "")
-        
-        # Newline occured between 'e' and 'd'
-        if(fileno == "end"):
-            fn = split[-2]
-            fileno = fn.replace("\n", "")
+        # Remove all newline characters 
+        nn = string.replace("\n", "")
 
-        print(fileno)
+        # Split string by comma's
+        ss = nn.split(",")
+
+        # Grab fileno
+        fn = ss[-2]
     except IndexError as e:
-        print("Failed to parse out the last received file number!")
         print(e)
 
-    return fileno
+    return fn
 
 ###########################################################
 # Name: fcode
@@ -210,17 +200,22 @@ def receive_data(peripheral, notification):
     msg = ""
 
     try:
-        while "end" not in msg:
+        while True:
             if actimo.waitForNotifications(1.0):
                 # handleNotification() was called
                 msg = notification.get_message()
                 data.append(msg)
                 print(msg)
+                
+                # "!!!" represents end of transfer
+                if "!" in msg:
+                    break
+                
                 continue
 
     except BTLEException as e:
         print(e)
-
+        
     return data
 
 ############################################################
@@ -247,19 +242,23 @@ if __name__ == "__main__":
 
     FILENO_PATH =       "/home/pi/Activity_Monitor_Base_Station/base_station/fileno.txt"
 
-    # Activity monitor setup
-    actimo = Peripheral(None)
-    nd = NotificationDelegate(DefaultDelegate)
-    actimo.setDelegate(nd)
+
 
     # Box Setup
     bx = Box()
-
 
     ################
     # Control Loop #
     ################
     while True:
+        
+        # Peripheral object
+        actimo = Peripheral(None)
+
+        # Asynchronous notification setup
+        nd = NotificationDelegate(DefaultDelegate)
+        actimo.setDelegate(nd)
+        
         # Wait until peripheral is ready
         connection_checks(ACTIVITY_MAC)    
 
@@ -277,32 +276,27 @@ if __name__ == "__main__":
         notifications_on(actimo, READ_CHAR_UUID)
 
         # Begin communication, starting from specified file number
-        send_command(actimo, WRITE_CHAR_UUID, "comm,{}".format(fn))
+        send_command(actimo, WRITE_CHAR_UUID, "comm,{},".format(fn))
 
         # Read in all data until 'end' command is read
         data = receive_data(actimo, nd)
-
-        # Update file number
-        write_fileno(FILENO_PATH, fileno_parse("".join(data[-6:])))
-
-        # Write all received information to a file
-        bx.write_to_file("".join(data))
-
-        # Upload file to Box
-        bx.upload_file()
-
+        
         # Disconnect from peripheral
-        disconnect(actimo) 
+        disconnect(actimo)
+        
+        # Update file number 
+        if len(data) > 1:
+            print("ENTER ENTER ENTER")
+            write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
+        
+            # Write all received information to a file
+            bx.write_to_file("".join(data))
+            
+            # Upload file to Box
+            bx.upload_file()
 
-    
-    """
-    # Test code for cronjob and forever.py
-    connection_checks(ACTIVITY_MAC)
-    # Breakage testing for forever.py and crontab -e
-    while(True):
-        print("Alive")
-        time.sleep(10)
-        print("Dead")
-        s = 10 / 0
-        time.sleep(1)
-    """
+        # Sleep cycle to allow peripheral to collect data
+        print("Entering sleep cycle. <(~.~)>")
+
+        # Delay to collect more data
+        time.sleep(120)
