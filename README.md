@@ -193,7 +193,9 @@ Then add the following anywhere in the file...
 ```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
 Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is range of the activity monitor peripheral.
 
+15) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
 
+**Thanks for reading!**
 
 
 
