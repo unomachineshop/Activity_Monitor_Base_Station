@@ -12,7 +12,7 @@ close to the theoretical maximum throughput of BLE 4.2.
 **BLE Peripheral:** Nordic SemiConductor NRF52840 dev board  
   
 ### Installing
-1) Download[Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/) operating system (OS) for the Pi.
+1) Download [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/) operating system (OS) for the Pi.
   
 2) You then will need to grab [Etcher](https://www.balena.io/etcher/) which will allow to you flash the OS onto the Pi.  
 *Verify the SHA-256 checksum matches*  
@@ -32,19 +32,26 @@ login:pi
 password: raspberry  
 ```
   
-7) The following is basic configuration setup for the Pi...  
+7) The following is basic configuration setup for the Pi  
+  
+**Automatic Login Setup**
 ```
 sudo raspi-config  
-```
-**Automatic Login Setup**  
+```  
 On boot, the Pi will automatically log us in without user name or password.  
 Choose *Boot Options* -> *Desktop / CLI* -> *Console Autologin* 
 
 **SSH Setup**  
+```
+sudo raspi-config  
+```  
 This will allow us to later on configure SSH to remotely boot into the Pi.
 Choose *Interfacing Options* -> *SSH* -> *YES!*  
   
 **Locale Setup**
+```
+sudo raspi-config  
+```  
 Central U.S.A. setup, may be different depending on your location...  
 Choose *Localisation Options* -> *Change Locale* -> uncheck *en_GB.UTF-8 UTF-* -> check *en_US.UTF-8 UTF-8.  
 Choose *Localisation Options* -> *Change Timezone* -> choose *US* -> *Central*  
@@ -53,6 +60,9 @@ You can now reboot,
 ```sudo reboot```  
 
 **Network Setup**
+```
+sudo raspi-config  
+```  
 If you are plugged in directly via an ethernet cable, you can skip the following *Network Setup* guide. 
 This section covers a very brief basic setup of connecting to your wifi via the Pi.
 Choose *Network Options* -> *Wi-fi* -> proceed to enter your networks name and password.  
