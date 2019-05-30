@@ -163,11 +163,21 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
   "enterpriseID": "digits0a8134"
 }
 ```
+* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console* through the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. Run the following...
+```
+cd /home/pi/Activity_Monitor_Base_Station/box
+python3
+import box
+b = box.Box()
+b.create_box_folder()
+```  
+After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous step, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
+
 13) At this point you can successfully run the program manually by issuing the following...
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
-It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this program at least, to ensure that all the work up to this point is 100% correct.  
+It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
-14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
+14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
 ```sudo crontab -e``` this opens up the super user's crontab page. (Needed for BLE scanning)  
 Then add the following anywhere in the file...  
 ```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
