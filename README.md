@@ -45,7 +45,7 @@ Choose *Boot Options* -> *Desktop / CLI* -> *Console Autologin*
 ```
 sudo raspi-config  
 ```  
-This will allow us to later on configure SSH to remotely boot into the Pi.
+This will allow us to later on configure SSH to remotely boot into the Pi.  
 Choose *Interfacing Options* -> *SSH* -> *YES!*  
   
 **Locale Setup**
@@ -87,7 +87,7 @@ network={
 	phase2="MSCHAPV2"
 }
 ```
-At this point it's a good idea to reboot the system to allow all the changes to take effect, including automatically connecting to the wifi.  
+At this point it's a good idea to reboot the system to allow all the changes to take effect, in doing so, you should automatically connect to the wifi as well.
 ```sudo reboot```
   
 8) With the network now setup, we can run the following to ensure the Pi and it's repositories are up to date.  
@@ -102,7 +102,7 @@ allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc
 
 We will first need gather some information on the Raspberry Pi side.  
 **Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*  
-**Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, for example something like 10.12.18.255/16  
+**Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, something like 10.12.18.255/16  
 **Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255  
 **Value4:** ```cat /etc/resolv.conf``` Take note of the nameserver value, something like 137.48.1.255  
   
@@ -116,20 +116,20 @@ Here is an example which configures a static address, routes and dns.
        static routers=Value3
        static domain_name_servers=Value4
 ```  
-At this point we now have a static ip address, that is independent of whatever network we are connected. Without this step, it is possible that the Pi's ip address could change each time we connect to a network. It is now a good idea to try and use Putty to connect to the Pi remotely before proceeding to the next steps.  
+At this point we now have a static ip address, that is independent of whatever network we are connected. Without this step, it is possible that the Pi's ip address could change each time we connect to a network. It is now a good idea to try and use Putty to connect to the Pi remotely before proceeding.  
 * First you will need to download [PuTTY](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) on your local computer.
 * In the Host Name field, enter the ip address we found from above. (Value2, without the /16 at the end, 10.12.18.255 for instance)
 * Click open, agree to the popup and proceed to log in using the default login.
   
 We can now begin setting up the public and private keys for automatic login, while maintaining a high level of security. To begin we will need to generate a public and private key pair. 
-* PuTTy comes with a program called PuttyGen which will generate our public and private key pairs. Start it up and click on generate. Moving your mouse to generate entropy. Save both the public and private keys somehwere you will remember. 
+* PuTTy comes with a program called PuttyGen which will generate our public and private key pairs. Start it up and click on generate. Moving your mouse to generate entropy. Save both the public and private keys somewhere you will remember. 
 * Now on the pi do the following...
 ```
 cd /home/pi  
 mkdir .ssh
 sudo chmod 700 .ssh
 ```
-* Now using a program such as [WinSCP](https://winscp.net/eng/index.php) you can remotely transfer files using the same ip address we used to log in with PuTTy. So transfer **ONLY** the public key to the newly created .ssh directory. Once the new public is transferred, run the following...
+* Using a program such as [WinSCP](https://winscp.net/eng/index.php) you can remotely transfer files using the same ip address we used to log in with PuTTy. So transfer **ONLY** the public key to the newly created .ssh directory. Once the new public key is transferred, run the following...
 ```
 sudo chmod 700 public
 mv public authorized_keys
@@ -154,11 +154,11 @@ cd /home/pi
 git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
 ```  
 
-12) At this point we are very close to being able to run the project. A single file is left missing that contains sensitive information in regards to being able to log into Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
+12) At this point we are very close to being able to run the project. A single file is left missing that contains sensitive information in regards to being able to log into the Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
 * First, create an account at [Box](https://www.box.com/home)
-* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key for your specified project. Box does a really nice job of setting this up rather painless. This is a JWT authentication application, so you should proceed as such. 
+* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key amongst other security parameters. Follow the guide with the mindest of setting up the JWT authentication, as JWT allows automatic refreshes on your client token.   
 * You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory */home/pi/Activity_Monitor_Base_Station/box*  
-* You will end up a file similair to this, (Obviously all the "quoted" values have been changed for security reasons, but this is to give you an idea of what you should end up with roughly.)
+* You will end up with a file similair to this, (Obviously all the data values have been changed for security reasons, but this is to give you an idea of what you should end up with.)
 ```
 {
   "boxAppSettings": {
@@ -173,7 +173,7 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
   "enterpriseID": "digits0a8134"
 }
 ```
-* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console* through the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. Run the following...
+* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console -> content* view on the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. The folder will be named *Activity_Monitor*. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. *Make sure to only run the following only once!.*
 ```
 cd /home/pi/Activity_Monitor_Base_Station/box
 python3
@@ -181,9 +181,9 @@ import box
 b = box.Box()
 b.create_box_folder()
 ```  
-After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous step, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
+After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous steps, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
 
-13) At this point you can successfully run the program manually by issuing the following...
+13) At this point you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
