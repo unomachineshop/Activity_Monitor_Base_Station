@@ -194,10 +194,11 @@ Then add the following anywhere in the file...
 Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is within range of the activity monitor peripheral.  
 *Please note, you must add the cd command, because crontab will start up in the user's home directory, which can cause conflicts due to pathing*
   
-15) At this point you can simply reboot the Pi, and the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the code directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity_Monitoring* and you will see all files uploaded to that folder. The naming conventing is a simple date/time string, derived from the exact instance the file was uploaded. 
-
-15) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
-
+15) At this point you can simply reboot the Pi, and the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the code directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity_Monitoring* and you will see all files uploaded to that folder. The naming conventing is a simple date/time string, derived from the exact instance the file was uploaded.  
+*Should you have trouble with the autostart feature, you can run the program ```htop``` look for the running script, take note of it's process id, and then run the following ```sudo strace -pXXX -s9999 -e write``` where XXX is the given process id.*
+  
+16) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
+  
 **Thanks for reading!**
 
 
