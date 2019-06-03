@@ -7,9 +7,9 @@ from the periphal to the central, all the while ensuring there is little to no p
 close to the theoretical maximum throughput of BLE 4.2.
 
 ### Prerequisites
-**BLE Central:** Raspberry Pi Model 3 B+, a monitor with hdmi port, hdmi cable, keyboard, internet, usb power supply and sd card.  
+**BLE Central:** Raspberry Pi Model 3 B+, a monitor with hdmi port, hdmi cable, keyboard, internet, usb power supply and sd card. A decent understanding of Linux and it's command line features. This guide does not assume your an expert, but you must be familiar at the very least with command line text editing, running programs, installing packages, .  
     
-**BLE Peripheral:** Nordic SemiConductor NRF52840 dev board  
+**BLE Peripheral:** Nordic SemiConductor NRF52840 dev board. While this project focuses specifically on the NRF52840 chip, it can be generalized to really any BLE peripheral. This guide assumes you have a decent understanding of how BLE works, what a characteristic, service, packet etc means. For more information check out this useful guide found [here](https://www.novelbits.io/basics-bluetooth-low-energy/). There are multitudes of great guides online, I had to read through several myself before really understanding how BLE works.  
   
 ### Installing
 1) Download [Raspbian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/) operating system (OS) for the Pi.
