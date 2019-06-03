@@ -205,7 +205,7 @@ def receive_data(peripheral, notification):
                 # handleNotification() was called
                 msg = notification.get_message()
                 data.append(msg)
-                print(msg)
+                #print(msg)
                 
                 # "!!!" represents end of transfer
                 if "!" in msg:
@@ -286,7 +286,7 @@ if __name__ == "__main__":
         
         # Update file number 
         if len(data) > 1:
-            print("ENTER ENTER ENTER")
+
             write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
         
             # Write all received information to a file
@@ -295,8 +295,6 @@ if __name__ == "__main__":
             # Upload file to Box
             bx.upload_file()
 
-        # Sleep cycle to allow peripheral to collect data
-        print("Entering sleep cycle. <(~.~)>")
 
         # Delay to collect more data
-        time.sleep(120)
+        time.sleep(600)
