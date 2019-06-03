@@ -182,7 +182,21 @@ b = box.Box()
 b.create_box_folder()
 ```  
 After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous steps, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
-
+  
+13) At this point with the code base set up locally on the Pi, there is one manual code change you will need to set up on your own. This change reflects the unique universal identifier (UUID) which are associated with any BLE peripheral. Unfortunately there is not an easy to obtain this information, without coding the peripheral yourself, such as this project did.  
+* A nice work around though is to download an app on [Android](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en_US) or [IOS](https://itunes.apple.com/us/app/nrf-connect/id1054362403?mt=8) called nRF Connect. This will allow you to scan for your BLE ssid, connect to it and see a plethora of information tied to your specific device. It even allows you to send and receive commands similair to how you would programatically.  
+* First we need to find the MAC address which is immediately displayed through the app as soon as you connect. It will follow the format of "F2:3F:22:33:4D", write this down as it will be needed later.
+* Next we need to find the main *Service*, and then drill down to find which unique characteristics you are looking for. For instance on the original prototyping device (my unique device), the service is "6e400001-b5a3-f393-e0a9-e50e24dcca9e". The service encompasses a set of characteristics, and you may have more than one service, so this can be a little bit tricky. But once you find the correct service, you can then locate the individual characteristics for your device. For instance my prototype setup had a write characteristic of "6e400002-b5a3-f393-e0a9-e50e24dcca92" and the read characteristic was "6e400003-b5a3-f393-e0a9-e50e24dcca92". Once you find these through the app, write them down as you will need to manually type them into the code base.  
+*  Now to update the code...  
+```nano /home/pi/Activity_Monitor_Base_Station/base_station/blue.py``` Scroll down to where you see, 
+```if __name__ == "__main__":
+ACTIVITY_MAC = "F2:3F:39:F8:4D:35"
+SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+WRITE_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca92"
+READ_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca92"
+```  
+Change those values to what you recorded above, make sure to save the file!  
+  
 13) Now you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
