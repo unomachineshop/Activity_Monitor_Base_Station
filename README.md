@@ -87,7 +87,7 @@ network={
 	phase2="MSCHAPV2"
 }
 ```
-At this point it's a good idea to reboot the system to allow all the changes to take effect, in doing so, you should automatically connect to the wifi as well.
+At this point it's a good idea to reboot the system to allow all the changes to take effect, in doing so, you should automatically connect to the wifi as well.  
 ```sudo reboot```
   
 8) With the network now setup, we can run the following to ensure the Pi and it's repositories are up to date.  
@@ -98,10 +98,12 @@ sudo apt-get upgrade
 ```
   
 9) With the Pi now connected to the internet we can look into setting up the remote connection via SSH. The remote connection will 
-allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called Putty. Please not using this method, it is possible that there is a static ip name collision, in which case you will have to try a few different values for *static ip_address* found below...
+allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc and will allow it to connect remotely through a program called Putty.  
+*Please note using this method, it is possible that are issues when manually deciding your own static ip address, in which case you will have to do some digging on your own, as it can become quite complicated depending on your network setup.*
 
 We will first need gather some information on the Raspberry Pi side.  
 **Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*  
+A check using ```ifconfig``` will show which network adapters are available, occasionally these can be named differently if you ever agreed to *predictable naming interfaces*.  
 **Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, something like 10.12.18.255/16  
 **Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255  
 **Value4:** ```cat /etc/resolv.conf``` Take note of the nameserver value, something like 137.48.1.255  
@@ -110,7 +112,7 @@ Now we need to edit the file /etc/dhcpcd.conf
 ```nano /etc/dhcpcd.conf```  
 And then add the following, substituting the values found above into there respected locations marked below.  
 ```
-Here is an example which configures a static address, routes and dns.
+Here is an example which configures a static address, router/gateway and dns.
        interface Value1
        static ip_address=Value2
        static routers=Value3
@@ -136,7 +138,8 @@ mv public authorized_keys
 ```
 * Now you can fire up PuTTY, input the IP address we used earlier into the Host Name field. 
 * On the left hand side choose *SSH* -> *Auth* -> and in the private key field, browse for your newly created private key file.
-* Back in the *Session* tab, be sure to give the *Saved Session* a name, and then hit *Save* before proceeding to connect. This will save you in the future from having to go update those values.
+* Back in the *Session* tab, be sure to give the *Saved Session* a name, and then hit *Save* before proceeding to connect.  
+*This will save you in the future from having to go back and input those values.*
 * Go ahead and try to connect now. Once you enter your username it should automatically log you in. If you happen to get a "server refused our key" message check out this article located [here](http://www.walkernews.net/2009/03/22/how-to-fix-server-refused-our-key-error-that-caused-by-putty-generated-rsa-public-key/) to properly format the file.  
   
 10) We will now install a few needed pieces of software on the Pi to allow us to build the actual project.  
@@ -154,10 +157,10 @@ cd /home/pi
 git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
 ```  
 
-12) A single file is left missing that contains sensitive information in regards to being able to log into the Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
-* First, create an account at [Box](https://www.box.com/home)
-* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key amongst other security parameters. Follow the guide with the mindest of setting up the JWT authentication, as JWT allows automatic refreshes on your client token.   
-* You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory */home/pi/Activity_Monitor_Base_Station/box*  
+12) A single configuration file is left missing that contains sensitive information in regards to being able to log into the Box SDK for long term storage. You will need to accomplish a few things though before we add that file.  
+* First, create an account at [Box](https://www.box.com/home). *Please note that free accounts have data upload limits*  
+* You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key amongst other security parameters. Follow the guide with the mindset of setting it up as a JWT authentication application, as JWT allows automatic refreshes on your client token.   
+* You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory ```/home/pi/Activity_Monitor_Base_Station/box``` 
 * You will end up with a file similair to this, (Obviously all the data values have been changed for security reasons, but this is to give you an idea of what you should end up with.)
 ```
 {
@@ -173,7 +176,7 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
   "enterpriseID": "digits0a8134"
 }
 ```
-* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console -> content* view on the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. The folder will be named *Activity_Monitor*. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. *Make sure to only run the following only once!.*
+* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console -> content* view on the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. The folder will be named *Activity_Monitoring*. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. *Make sure to only run the following only once!.*
 ```
 cd /home/pi/Activity_Monitor_Base_Station/box
 python3
