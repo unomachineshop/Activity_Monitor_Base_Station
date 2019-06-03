@@ -44,7 +44,7 @@ class Box():
     # specifiy the email address of whoever needs access.
     #########################################################
     def create_box_folder(self):
-        folder_name = "Activity_Monitor"
+        folder_name = "Activity_Monitoring"
         folder_id = 0 # Root level
         try:
             folder = self.client.folder(folder_id).create_subfolder(folder_name)
