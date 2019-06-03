@@ -154,7 +154,7 @@ cd /home/pi
 git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
 ```  
 
-12) At this point we are very close to being able to run the project. A single file is left missing that contains sensitive information in regards to being able to log into the Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
+12) A single file is left missing that contains sensitive information in regards to being able to log into the Box SDk for long term storage. You will need to accomplish a few things though before we add that file.  
 * First, create an account at [Box](https://www.box.com/home)
 * You will then need to follow the directions [here](https://developer.box.com/docs/setting-up-a-jwt-app) which will allow you to set up an application which gives you access to an API key amongst other security parameters. Follow the guide with the mindest of setting up the JWT authentication, as JWT allows automatic refreshes on your client token.   
 * You will eventually get to a point where you end up downloading a config file that is automatically generated based upon the criteria you set up through that guide. Ensure that file is named *config.json*. You need to then transfer this file to your Pi via WinSCP or some other file transfer method. You will need to move it to the directory */home/pi/Activity_Monitor_Base_Station/box*  
@@ -183,15 +183,14 @@ b.create_box_folder()
 ```  
 After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous steps, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
 
-13) At this point you can successfully run the program manually by issuing the following...  
+13) Now you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
 14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
 ```sudo crontab -e``` this opens up the super user's crontab page. (Needed for BLE scanning)  
 Then add the following anywhere in the file...  
-```@reboot python3 cd /home/pi/Activity_Monitor_Base_Station && /home/pi/Activity_Monitor_Base_Station/forever.py```  
-Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is within range of the activity monitor peripheral.  
+```@reboot python3 cd /home/pi/Activity_Monitor_Base_Station && /home/pi/Activity_Monitor_Base_Station/forever.py```   
 *Please note, you must add the cd command, because crontab will start up in the user's home directory, which can cause conflicts due to pathing*
   
 15) At this point you can simply reboot the Pi, and the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity_Monitoring* and you will see all previous uploaded files to that folder. The naming conventing is a simple date/time string, derived from the exact instance the file was uploaded.  
