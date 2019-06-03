@@ -190,8 +190,11 @@ It will run through a series a checks and then begin to attempt to read data fro
 14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
 ```sudo crontab -e``` this opens up the super user's crontab page. (Needed for BLE scanning)  
 Then add the following anywhere in the file...  
-```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
-Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is range of the activity monitor peripheral.
+```@reboot python3 cd /home/pi/Activity_Monitor_Base_Station && /home/pi/Activity_Monitor_Base_Station/forever.py```  
+Once this line is added and you reboot, the base station will run forever in the background, collecting data, and sending it to the cloud whenever it is within range of the activity monitor peripheral.  
+*Please note, you must add the cd command, because crontab will start up in the user's home directory, which can cause conflicts due to pathing*
+  
+15) At this point you can simply reboot the Pi, and the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the code directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity_Monitoring* and you will see all files uploaded to that folder. The naming conventing is a simple date/time string, derived from the exact instance the file was uploaded. 
 
 15) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
 
