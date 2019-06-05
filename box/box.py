@@ -13,9 +13,11 @@ class Box():
         self.CONFIG_PATH =      "/home/pi/Activity_Monitor_Base_Station/box/config.json"
         self.FILE_READ_PATH =   "/home/pi/Activity_Monitor_Base_Station/box/read.txt"
         self.FILE_WRITE_PATH =  "/home/pi/Activity_Monitor_Base_Station/box/write.txt"
+        self.FILE_ERROR_PATH =  "/home/pi/Activity_Monitor_Base_Station/box/error.txt"
         
         # Remote
-        self.SHARED_FOLDER =    "75253867312" # Default folder id
+        self.DATA_FOLDER =    "75253867312" # CHANGE THIS
+        self.ERROR_FOLDER =   "78605578754" # CHANGE THIS
         self.client = ""
         
         # Retrieve authentication information from config file
@@ -26,13 +28,24 @@ class Box():
         self.client = Client(auth)
         
     #########################################################
-    # Name: write_to_file
-    # Desc: Writes a chunk of data to a file.
+    # Name: write_data_to_file
+    # Desc: Writes a transfered peripheral data to a file.
     #########################################################
-    def write_to_file(self, data):
+    def write_data_to_file(self, data):
         try:
             with open(self.FILE_WRITE_PATH, 'w') as f:
                 f.write(data)
+        except IOError as e:
+            print(e)
+
+    #######################################################
+    # Name: write_error_to_file
+    # Desc: Writes error data to file
+    #######################################################
+    def write_error_to_file(self, error):
+        try:
+            with open(self.FILE_ERROR_PATH, 'a') as f:
+                f.write(error)
         except IOError as e:
             print(e)
 
@@ -43,30 +56,34 @@ class Box():
     # manually go to admin panel > content > share, and 
     # specifiy the email address of whoever needs access.
     #########################################################
-    def create_box_folder(self):
-        folder_name = "Activity_Data"
+    def create_box_folder(self, folder_name):
+        #folder_name = "Activity_Data"
         folder_id = 0 # Root level
         try:
             folder = self.client.folder(folder_id).create_subfolder(folder_name)
-            print("Successfully created box folder, do not run this command again!")
             print("Folder ID:" +  folder.id)
-            self.SHARED_FOLDER = folder.id
-    
         except BoxAPIException as e:
             print(e)
-            print("Failed to create box folder, check wifi, and ensure folder wasn't already created!")
+            print("Failed to create box folder, check internet connection, and ensure folder wasn't already created!")
 
     #########################################################
-    # Name: upload_file
-    # Desc: Uploads a  file under the shared folder, which
-    # uses a datetime naming convention.
+    # Name: upload_data_file
+    # Desc: Uploads an entire data file to Box.
     #########################################################
-    def upload_file(self):
+    def upload_data_file(self):
         file_name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".txt"
         try:
-            box_file = self.client.folder(self.SHARED_FOLDER).upload(self.FILE_WRITE_PATH, file_name, preflight_check=True)
-            return True
+            box_file = self.client.folder(self.DATA_FOLDER).upload(self.FILE_WRITE_PATH, file_name, preflight_check=True)
         except BoxAPIException as e:
             print(e)
-        
-        return False
+
+    #######################################################
+    # Name: upload_error_file
+    # Desc: Uploads an entire error file to Box. 
+    #######################################################
+    def upload_error_file(self):
+        file_name = datetime.now().strftime("%Y-%m-%d") + ".txt"
+        try:
+            box_file = self.client.folder(self.ERROR_FOLDER).upload(self.FILE_ERROR_PATH, file_name, preflight_check=True)
+        except BoxAPIException as e:
+            print(e)

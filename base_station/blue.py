@@ -1,11 +1,7 @@
-import binascii
-import struct
 import time
 from struct import *
 from datetime import datetime
 from bluepy.btle import DefaultDelegate, Peripheral, Scanner
-from collections import OrderedDict
-from collections import deque
 
 # Asynchronous delegates
 from notification_delegate import NotificationDelegate
@@ -14,7 +10,7 @@ from scan_delegate import ScanDelegate
 # Box
 import sys
 sys.path.append("/home/pi/Activity_Monitor_Base_Station/box")
-from box import Box 
+from box import Box
 
 # IBM Watson IoT (NOT IN USE)
 #import sys
@@ -39,11 +35,13 @@ def within_range(mac):
 
     for dev in devices:
         if dev.addr == mac and dev.rssi > MIN_RSSI:
-            print("Device was found!")
+            if __debug__:
+                print("Device was found!")
             return True
 
     time.sleep(1)
-    print("Device wasn't found...")
+    if __debug__:
+        print("Device wasn't found...")
     return False
 
 #######################################################
@@ -59,12 +57,14 @@ def connection_checks(mac):
         # Device WAS found during scan
         if within_range(mac):
             checks.append("PASS")
-            print("Found device! [PASS {}] <(^.^)>".format(len(checks)))
+            if __debug__:
+                print("Found device! [PASS {}] <(^.^)>".format(len(checks)))
 
         # Device was NOT found during scan
         else:
             check = []
-            print("Device not found! [Failure] <(-.-)>")
+            if __debug__:
+                print("Device not found! [Failure] <(-.-)>")
 
     return True
 
@@ -74,11 +74,14 @@ def connection_checks(mac):
 ############################################################
 def connect(peripheral, mac, addr_type):
     try:
-        print("Attempting to connect to device...")
+        if __debug__:
+            print("Attempting to connect to device...")
         peripheral.connect(mac, addr_type)
-        print("Connection successful!")
+        if __debug__:
+            print("Connection successful!")
     except BTLEException as e:
         print(e)
+        bx.write_error_to_file(e)
 
 ############################################################
 # Name: disconnect
@@ -86,11 +89,14 @@ def connect(peripheral, mac, addr_type):
 ############################################################
 def disconnect(peripheral):
     try:
-        print("Disconnecting from device...")
+        if __debug__:
+            print("Disconnecting from device...")
         peripheral.disconnect()
-        print("Disconnection successful!")
+        if __debug__:
+            print("Disconnection successful!")
     except BTLEException as e:
         print(e)
+        bx.write_error_to_file(e)
 
 ############################################################
 # Name: notifications_on
@@ -155,6 +161,7 @@ def fileno_parse(string):
         fn = ss[-2]
     except IndexError as e:
         print(e)
+        bx.write_error_to_file(e)
 
     return fn
 
@@ -205,7 +212,8 @@ def receive_data(peripheral, notification):
                 # handleNotification() was called
                 msg = notification.get_message()
                 data.append(msg)
-                #print(msg)
+                if __debug__:
+                    print(msg)
                 
                 # "!!!" represents end of transfer
                 if "!" in msg:
@@ -215,7 +223,8 @@ def receive_data(peripheral, notification):
 
     except BTLEException as e:
         print(e)
-        
+        bx.write_error_to_file(e)
+
     return data
 
 ############################################################
@@ -284,17 +293,18 @@ if __name__ == "__main__":
         # Disconnect from peripheral
         disconnect(actimo)
         
-        # Update file number 
+        # Ensure at least one packet was recieved
         if len(data) > 1:
-
+            
+            # Update file number 
             write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
         
             # Write all received information to a file
             bx.write_to_file("".join(data))
             
-            # Upload file to Box
-            bx.upload_file()
+            # Upload data file to Box
+            bx.upload_data_file()
 
 
-        # Delay to collect more data
+        # Allow peripheral to collect new data
         time.sleep(600)

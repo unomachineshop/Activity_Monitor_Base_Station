@@ -1,7 +1,7 @@
 ###########################################################
 # Desc: This script will continuously run the blue.py
 # script to ensure that no matter what happens, the 
-# script will continuously execute.
+# script will be running.
 # 
 # This script is used in conjunction with a cronjob which
 # get executed on every single pi reboot. The combination
@@ -13,10 +13,10 @@ from subprocess import Popen
 import sys
 import time
 
-filename = "./base_station/blue.py"
+filename = "/home/pi/Activity_Monitor_Base_Station/base_station/blue.py"
 while True:
     print("\nStarting " + filename)
-    cmd = ['python3', filename]
+    cmd = ['python3', '-O', filename]
     p = Popen(cmd)
     p.wait()
-    time.sleep(60) # Brief pause
+    time.sleep(60)
