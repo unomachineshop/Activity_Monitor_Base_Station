@@ -198,10 +198,11 @@ SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 WRITE_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca92"
 READ_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca92"
 ```  
-Change those values to what you recorded above, make sure to save the file!  
+Edit the values to match what you found above, make sure to save the file!  
   
 13) Now you can successfully run the program manually by issuing the following...  
-```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```
+```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```  
+If when running manually you would like to see the output simply run it with the python flag -O
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
 14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
