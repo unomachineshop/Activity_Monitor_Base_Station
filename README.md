@@ -69,7 +69,7 @@ Choose *Network Options* -> *Wi-fi* -> proceed to enter your networks name and p
 You can test your connection via...  
 ```ping google.com```  
   
-In some situations this may not work entirely depending on your network setup, in which case you will have to do some digging on your own. In my case, I'm on a public college network that requires a username and password. You can add the following file to /etc/wpa_supplicant/wpa_supplicant.conf, you will need to use the ```nano``` text editor to make changes for which there a multiple guides online how to use.  
+In some situations this may not work entirely depending on your network setup, in which case you will have to do some digging on your own. In my case, I'm on a public college network that requires a username and password. You can add the following file to /etc/wpa_supplicant/wpa_supplicant.conf, you will need to use the ```nano``` text editor.  
 ```
 ctrl_interface=/run/wpa_supplicant.conf GROUP=netdev
 update_config=1
