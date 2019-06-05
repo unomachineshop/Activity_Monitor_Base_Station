@@ -7,7 +7,7 @@ from the periphal to the central, all the while ensuring there is little to no p
 close to the theoretical maximum throughput of BLE 4.2.  
 
 ### Prerequisites
-**BLE Central:** Raspberry Pi Model 3 B+, a monitor with hdmi port, hdmi cable, keyboard, internet, usb power supply and sd card. A decent understanding of Linux and it's command line features. This guide does not assume your an expert, but you must be familiar at the very least with command line text editing, running programs, installing packages, Linux permissions, and understanding simple file IO. 
+**BLE Central:** Raspberry Pi Model 3 B+, a monitor with hdmi port, hdmi cable, keyboard, internet, usb power supply and sd card. A decent understanding of Linux and it's command line features. This guide does not assume your an expert, but you must be familiar at the very least with command line text editing, running programs, installing packages, Linux permissions, and understanding simple file IO. A smartphone will also be beneficial for testing purposes, as well as gathering hardware information from your devices. 
     
 **BLE Peripheral:** Nordic SemiConductor NRF52840 dev board. While this project focuses specifically on the NRF52840 chip, it can be generalized to really any BLE peripheral. This guide assumes you have a decent understanding of how BLE works, what a characteristic, service, MAC address, etc. means. For more information check out this useful guide found [here](https://www.novelbits.io/basics-bluetooth-low-energy/). There are multitudes of great guides online, I had to read through several myself before attempting to understand how BLE works. **This guide only focuses on the technical aspects of the base station, it DOES NOT set up the BLE peripheral.**
   
@@ -176,18 +176,25 @@ git clone https://github.com/unomachineshop/Activity_Monitor_Base_Station.git
   "enterpriseID": "digits0a8134"
 }
 ```
-* Lastly you will need to programatically set up a folder, which will be viewable, and located within the *admin console -> content* view on the Box dashboard. This folder will be where the data gets uploaded to, and is shareable through Box's GUI setup. The folder will be named *Activity Data*. It's very similair to how you would share any file or folder on Box with someone else. The only exception being you must programmatically set it up, through the Python interpreter. *Make sure to only run the following only once!.*
+* You will need to programatically set up two folders, both of which will be viewable, and located within the *admin console -> content* view on the Box dashboard. The first folder will contain the data transferred from the peripheral. The second folder will contain error reports that were seen locally on the Pi itself. Both of these folders once created, can be shared with anyone, just as you would a normal Box folder. After each ```b.create_box_folder("folder name")``` command, **TAKE NOTE OF THE FOLDER ID PRINTED OUT!!!**  
 ```
 cd /home/pi/Activity_Monitor_Base_Station/box
 python3
 import box
 b = box.Box()
-b.create_box_folder()
+b.create_box_folder("Activity Data")
+b.create_box_folder("Error Data")
 ```  
-After running these commands you will see one of two messages. *Success* indicates the folder was created and is now viewable through the Box *admin console*. *Failed* indicates there was an issue, perhaps with your wifi, the previous steps, or perhaps there already exists a folder named "Activity_Monitor". For more information on the Box API please check out the following, [Box Guide](https://developer.box.com/reference)
+You will now have two folder id's corresponding to the `Activity Data` folder, and `Error Data` folder respectively. You will need to fire up nano and edit the file ```/home/pi/Activity_Monitor_Base_Station/box/box.py```. Towards the top of the file you will find,  
+```
+self.DATA_FOLDER =  "75253867312"
+self.ERROR_FOLDER = "78605578754"
+"
+```
+You will need to change those values to the ones you found from running the commands above. Make sure to save the file after editing! Should you run into any problems have a look at the following, [Box Guide](https://developer.box.com/reference).
   
-13) At this point with the code base set up locally on the Pi, there is one manual code change you will need to set up on your own. This change reflects the unique universal identifier (UUID) which are associated with any BLE peripheral. Unfortunately there is not an easy to obtain this information, without coding the peripheral yourself, such as this project did.  
-* A nice work around though is to download an app on [Android](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en_US) or [IOS](https://itunes.apple.com/us/app/nrf-connect/id1054362403?mt=8) called nRF Connect. This will allow you to scan for your BLE ssid, connect to it and see a plethora of information tied to your specific device. It even allows you to send and receive commands similair to how you would programatically.  
+13) At this point with the code base set up locally on the Pi, there is only one other manual code change you will need to set up on your own. This change reflects the unique universal identifier (UUID) which are associated with any BLE peripheral.  
+* To help us find this information, download an app on [Android](https://play.google.com/store/apps/details?id=no.nordicsemi.android.mcp&hl=en_US) or [IOS](https://itunes.apple.com/us/app/nrf-connect/id1054362403?mt=8) called nRF Connect. This will allow you to scan for your BLE ssid, connect to it and see a plethora of information tied to your specific device. It even allows you to send and receive commands similair to how you would programatically.  
 * First we need to find the MAC address which is immediately displayed through the app as soon as you connect. It will follow the format of "F2:3F:22:33:4D", write this down as it will be needed later.
 * Next we need to find the main *Service*, and then drill down to find which unique characteristics you are looking for. For instance on the original prototyping device (my unique device), the service is "6e400001-b5a3-f393-e0a9-e50e24dcca9e". The service encompasses a set of characteristics, and you may have more than one service, so this can be a little bit tricky. But once you find the correct service, you can then locate the individual characteristics for your device. For instance my prototype setup had a write characteristic of "6e400002-b5a3-f393-e0a9-e50e24dcca92" and the read characteristic was "6e400003-b5a3-f393-e0a9-e50e24dcca92". Once you find these through the app, write them down as you will need to manually type them into the code base.  
 *  Now to update the code...  
