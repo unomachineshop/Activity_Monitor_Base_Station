@@ -4,7 +4,7 @@ The core focus of the base station is to initiate and handle all forms of commun
 from the peripheral device. It acts a relay of sorts, receiving data from the peripheral, temporarily storing it, and
 then uploading it to a cloud service provider for long term storage. It allows for rather large data transfers
 from the periphal to the central, all the while ensuring there is little to no packet loss, at speeds that reach 
-close to the theoretical maximum throughput of BLE 4.2.
+close to the theoretical maximum throughput of BLE 4.2.  
 
 ### Prerequisites
 **BLE Central:** Raspberry Pi Model 3 B+, a monitor with hdmi port, hdmi cable, keyboard, internet, usb power supply and sd card. A decent understanding of Linux and it's command line features. This guide does not assume your an expert, but you must be familiar at the very least with command line text editing, running programs, installing packages, Linux permissions, and understanding simple file IO. 
