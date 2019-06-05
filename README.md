@@ -205,11 +205,10 @@ Edit the values to match what you found above, make sure to save the file!
 If when running manually you would like to see the output simply run it with the python flag -O
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
-14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. The program could crash, lose power, etc, and this script will ensure that no matter what, blue.py attempts to stay alive. The set up is simple...  
-```sudo crontab -e``` this opens up the super user's crontab page. (Needed for BLE scanning)  
+14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. Programs are never foolproof and this script will ensure that no matter what, blue.py attempts to stay alive.  
+```sudo crontab -e``` this opens up the super user's crontab page. (Root privelages needed for BLE scanning)  
 Then add the following anywhere in the file...  
-```@reboot python3 cd /home/pi/Activity_Monitor_Base_Station && /home/pi/Activity_Monitor_Base_Station/forever.py```   
-*Please note, you must add the cd command, because crontab will start up in the user's home directory, which can cause conflicts due to pathing*
+```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
   
 15) At this point you can simply reboot the Pi, the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity Data* and you will see all previous uploaded files to that folder. The naming convention is a simple date/time string, derived from the exact instance the file was uploaded.  
 *Should you have trouble with the autostart feature, you can run the program ```htop``` look for the running script, take note of it's process id, and then run the following ```sudo strace -pXXX -s9999 -e write``` where XXX is the given process id.*
