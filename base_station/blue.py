@@ -309,7 +309,7 @@ if __name__ == "__main__":
             write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
         
             # Write all received information to a file
-            bx.write_data_to__file("".join(data))
+            bx.write_data_to_file("".join(data))
             
             # Upload data file to Box
             bx.upload_data_file()
