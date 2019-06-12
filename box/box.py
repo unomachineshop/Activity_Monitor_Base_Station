@@ -45,7 +45,8 @@ class Box():
     def write_error_to_file(self, error):
         try:
             with open(self.FILE_ERROR_PATH, 'a') as f:
-                f.write(error)
+                dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S  ") 
+                f.write(dt + repr(error) + "\n")
         except IOError as e:
             print(e)
 
@@ -68,7 +69,8 @@ class Box():
 
     #########################################################
     # Name: upload_data_file
-    # Desc: Uploads an entire data file to Box.
+    # Desc: Uploads an entire data file to Box. Uploads are
+    # dependent upon communication iterations.
     #########################################################
     def upload_data_file(self):
         file_name = datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + ".txt"
@@ -79,7 +81,8 @@ class Box():
 
     #######################################################
     # Name: upload_error_file
-    # Desc: Uploads an entire error file to Box. 
+    # Desc: Uploads an entire error file to Box. Uploads 
+    # are done daily, via a cronjob.
     #######################################################
     def upload_error_file(self):
         file_name = datetime.now().strftime("%Y-%m-%d") + ".txt"
@@ -87,3 +90,11 @@ class Box():
             box_file = self.client.folder(self.ERROR_FOLDER).upload(self.FILE_ERROR_PATH, file_name, preflight_check=True)
         except BoxAPIException as e:
             print(e)
+
+    ########################################################
+    # Name: error_file_clear
+    # Desc: Clears the contents of the error file, executed
+    # after the error file has been uploaded. 
+    #######################################################
+    def error_file_clear(self):
+        open(self.FILE_ERROR_PATH, 'w').close()

@@ -53,6 +53,12 @@ def within_range(mac):
 #######################################################
 def connection_checks(mac):
     checks = []
+
+    try:
+        x = 10/0
+    except ZeroDivisionError as e:
+        bx.write_error_to_file(e)
+
     while len(checks) < 3:
         # Device WAS found during scan
         if within_range(mac):
@@ -80,7 +86,8 @@ def connect(peripheral, mac, addr_type):
         if __debug__:
             print("Connection successful!")
     except BTLEException as e:
-        print(e)
+        if __debug__:
+            print(e)
         bx.write_error_to_file(e)
 
 ############################################################
@@ -95,7 +102,8 @@ def disconnect(peripheral):
         if __debug__:
             print("Disconnection successful!")
     except BTLEException as e:
-        print(e)
+        if __debug__:
+            print(e)
         bx.write_error_to_file(e)
 
 ############################################################
@@ -160,7 +168,8 @@ def fileno_parse(string):
         # Grab fileno
         fn = ss[-2]
     except IndexError as e:
-        print(e)
+        if __debug__:
+            print(e)
         bx.write_error_to_file(e)
 
     return fn
@@ -300,7 +309,7 @@ if __name__ == "__main__":
             write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
         
             # Write all received information to a file
-            bx.write_to_file("".join(data))
+            bx.write_data_to__file("".join(data))
             
             # Upload data file to Box
             bx.upload_data_file()
