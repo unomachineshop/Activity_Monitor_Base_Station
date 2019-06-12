@@ -217,7 +217,7 @@ It will run through a series a checks and then begin to attempt to read data fro
 Then add the following anywhere in the file...  
 ```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
   
-15) We need to add one more cronjob to our system in order to upload our error log file once a day. This cronjob does **NOT** require super user privelages, so we can set up it up as follows,
+15) We need to add one more cronjob to our system in order to upload our error log file once a day. This cronjob does **NOT** require super user privelages, so we can set up it up as follows,  
 ```crontab -e``` and then add the following to the file...
 ```0 22 * * * /home/pi/Activity_Monitor_Base_Station/box/error_upload.py``` All this means, is that once a day, at 10 p.m., the entire error upload file will be pushed to the *Error Data* folder we created on Box. This will allow us to remotely diagnose any issues that may arise for future debugging purposes.  
   
