@@ -217,10 +217,14 @@ It will run through a series a checks and then begin to attempt to read data fro
 Then add the following anywhere in the file...  
 ```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
   
-15) At this point you can simply reboot the Pi, the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity Data* and you will see all previous uploaded files to that folder. The naming convention is a simple date/time string, derived from the exact instance the file was uploaded.  
+15) We need to add one more cronjob to our system in order to upload our error log file once a day. This cronjob does **NOT** require super user privelages, so we can set up it up as follows,
+```crontab -e``` and then add the following to the file...
+```0 22 * * * /home/pi/Activity_Monitor_Base_Station/box/error_upload.py``` All this means, is that once a day, at 10 p.m., the entire error upload file will be pushed to the error folder we created on box. This will allow us to remotely diagnose any issues that may arise for future debugging purposes.  
+  
+16) At this point you can simply reboot the Pi, the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity Data* and you will see all previous uploaded files to that folder. The naming convention is a simple date/time string, derived from the exact instance the file was uploaded.  
 *Should you have trouble with the autostart feature, you can run the program ```htop``` look for the running script, take note of it's process id, and then run the following ```sudo strace -pXXX -s9999 -e write``` where XXX is the given process id.*
   
-16) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
+17) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
   
 **Thanks for reading!**
 
