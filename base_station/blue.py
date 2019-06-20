@@ -54,11 +54,6 @@ def within_range(mac):
 def connection_checks(mac):
     checks = []
 
-    try:
-        x = 10/0
-    except ZeroDivisionError as e:
-        bx.write_error_to_file(e)
-
     while len(checks) < 3:
         # Device WAS found during scan
         if within_range(mac):
@@ -145,12 +140,24 @@ def write_fileno(path,fileno):
 def read_fileno(path):
     with open(path, "r") as f:
         fileno = f.read()
-        
+
         # In the event nothing was read, start over
         if(fileno == ""):
             fileno = 1
 
     return fileno
+
+###########################################################
+# Name: read_interval
+# Desc: Reads the interval file into a 10 integer list. 
+# This will only be called once every reboot.
+###########################################################
+def read_interval(path):
+    with open(path, "r") as f:
+        interval = f.read()
+    
+    return interval.split(",")
+
 
 ###########################################################
 # Name: fileno_parse
@@ -178,7 +185,6 @@ def fileno_parse(string):
 # Name: fcode
 # Desc: String formatter to specify how many letters the
 # BLE connection will be sending to the activity monitor.
-# This is a bluepy independent format.
 # < - little endian, {} - string length, s - string
 ###########################################################
 def fcode(string):
@@ -186,7 +192,6 @@ def fcode(string):
     s = "<{}s".format(l)
 
     return s
-
 
 ############################################################
 # Name: send_command
@@ -197,6 +202,17 @@ def fcode(string):
 ############################################################
 def send_command(peripheral, uuid, cmd): 
     dc = fcode(cmd)
+    d = cmd.encode()
+
+    # Pack information
+    p = pack(dc, d)
+
+    # Send to device
+    c = peripheral.getCharacteristics(uuid=uuid)[0]
+    c.write(p)
+
+def send_command2(peripheral, uuid, cmd): 
+    dc = "<i"
     d = cmd.encode()
 
     # Pack information
@@ -223,11 +239,11 @@ def receive_data(peripheral, notification):
                 data.append(msg)
                 if __debug__:
                     print(msg)
-                
+
                 # "!!!" represents end of transfer
                 if "!" in msg:
                     break
-                
+
                 continue
 
     except BTLEException as e:
@@ -243,24 +259,39 @@ def receive_data(peripheral, notification):
 ############################################################
 def set_time(peripheral, uuid):
     dt = datetime.now().strftime("%Y,%m,%d,%H,%M,%S")
-    send_command(actimo, uuid, "settime,")
+    send_command(peripheral, uuid, "settime,")
     time.sleep(1) # necessary, the Pi may be to fast. 
     send_command(actimo, uuid, dt)
+
+###########################################################
+# Name: add
+# Desc: Sends an integer value to the peripheral, 
+# indicating the amount of minutes between subject
+# notifications. 
+###########################################################
+def add(peripheral, uuid, i):
+    # TODO
+    pass
+    
+
 
 ##########################################################
 ### Main Module ##########################################
 ##########################################################
 if __name__ == "__main__":
 
-    ACTIVITY_MAC =      "f2:3f:39:f8:4d:35"
+    ACTIVITY_MAC =      "e3:33:b4:b5:6c:99"
     ADDRESS_TYPE =      "random"
     SERVICE_UUID =      "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
     WRITE_CHAR_UUID =   "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
     READ_CHAR_UUID  =   "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 
     FILENO_PATH =       "/home/pi/Activity_Monitor_Base_Station/base_station/fileno.txt"
+    INTERVAL_PATH =     "/home/pi/Activity_Monitor_Base_Station/base_station/interval.txt"
 
 
+    # Only true for first iteration after a reset
+    reset = True
 
     # Box Setup
     bx = Box()
@@ -269,19 +300,34 @@ if __name__ == "__main__":
     # Control Loop #
     ################
     while True:
-        
+
         # Peripheral object
         actimo = Peripheral(None)
 
         # Asynchronous notification setup
         nd = NotificationDelegate(DefaultDelegate)
         actimo.setDelegate(nd)
-        
+
         # Wait until peripheral is ready
         connection_checks(ACTIVITY_MAC)    
 
         # Connect to peripheral
         connect(actimo, ACTIVITY_MAC, ADDRESS_TYPE)
+
+        # Executes only on reset
+        """
+        if reset:
+            # Clears out peripheral's command file
+            send_command(actimo, WRITE_CHAR_UUID, "ec,")
+            time.sleep(1)
+            # Iterate through list of interval values
+            print(read_interval(INTERVAL_PATH))
+            for i in read_interval(INTERVAL_PATH):
+                send_command(actimo, WRITE_CHAR_UUID, "add," + str(i) + ",")
+                time.sleep(1)
+            reset = False
+            break
+        """
 
         # Acquire last file number read from peripheral
         fn = read_fileno(FILENO_PATH)
@@ -298,22 +344,21 @@ if __name__ == "__main__":
 
         # Read in all data until 'end' command is read
         data = receive_data(actimo, nd)
-        
+
         # Disconnect from peripheral
         disconnect(actimo)
-        
+
         # Ensure at least one packet was recieved
         if len(data) > 1:
-            
+
             # Update file number 
             write_fileno(FILENO_PATH, fileno_parse("".join(data[-2:])))
-        
+
             # Write all received information to a file
             bx.write_data_to_file("".join(data))
-            
+
             # Upload data file to Box
             bx.upload_data_file()
-
 
         # Allow peripheral to collect new data
         time.sleep(600)
