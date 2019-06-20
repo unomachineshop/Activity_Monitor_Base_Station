@@ -205,7 +205,7 @@ SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
 WRITE_CHAR_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca92"
 READ_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca92"
 ```  
-Edit the values to match what you found above, make sure to save the file!  
+Edit the values to match what you found above, **Ensure Activity_MAC is in lower case**, save the file!  
   
 13) Now you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```  
