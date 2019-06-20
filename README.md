@@ -207,25 +207,32 @@ READ_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca92"
 ```  
 Edit the values to match what you found above, **Ensure Activity_MAC is in lower case**, save the file!  
   
-13) Now you can successfully run the program manually by issuing the following...  
+13) There is also a program you will need to run in the event that you would like to update the interval in which the collections are done. This is represented by 10 integers, seperated by comma's. The integers signify the minutes for each collection period. Anytime you would like to update these values, you will simply have to repeat the commands shown below. You will need to SSH in, or have a keyboard and monitor available to use, in order to visually see what you are doing.  
+```
+cd /home/pi/Activity_Monitor_Base_Station/base_station
+python3 interval_input.py
+```
+This small program will ensure your data is entered, and formatted correctly! **Please be aware that the only time changes will take effect is after a hard reset, such unplugging the base station!**  
+  
+14) Now you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```  
 If when running manually you would like to see the output simply run it with the python flag -O
 It will run through a series a checks and then begin to attempt to read data from the peripheral device. While this is nice, we have set up a way to completely automate this on boot. Before proceeding it is definitely worth it to try and run this manually, to ensure that all the work up to this point is correct.  
   
-14) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. Programs are never foolproof and this script will ensure that no matter what, blue.py attempts to stay alive.  
+15) You may have noticed when navigating through the directories that there was a file highlighted green called forever.py. This file is used in conjunction with Linux's cron job scheduler to ensure that blue.py will run forever. Programs are never foolproof and this script will ensure that no matter what, blue.py attempts to stay alive.  
 ```sudo crontab -e``` this opens up the super user's crontab page. (Root privelages needed for BLE scanning)  
 Then add the following anywhere in the file...  
 ```@reboot python3 /home/pi/Activity_Monitor_Base_Station/forever.py```  
   
-15) We need to add one more cronjob to our system in order to upload our error log file once a day. This cronjob does **NOT** require super user privelages, so we can set up it up as follows,  
+16) We need to add one more cronjob to our system in order to upload our error log file once a day. This cronjob does **NOT** require super user privelages, so we can set up it up as follows,  
 ```crontab -e``` and then add the following to the file...  
 ```0 22 * * * /home/pi/Activity_Monitor_Base_Station/box/error_upload.py```  
 All this means, is that once a day, at 10 p.m., the entire error upload file will be pushed to the *Error Data* folder we created on Box. This will allow us to remotely diagnose any issues that may arise for future debugging purposes.  
   
-16) At this point you can simply reboot the Pi, the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity Data* and you will see all previous uploaded files to that folder. The naming convention is a simple date/time string, derived from the exact instance the file was uploaded.  
+17) At this point you can simply reboot the Pi, the code will automatically start, and will continue to run as long as the Pi has power to it. Since everything gets handled in the background, the easiest way to check output is through Box's admin console. Once a full iteration of communication is complete, the base station will upload the transfered data directly to Box, through the folder we created above. To view this go to *[Box.com](box.com)* -> *login* -> on the left hand side click *admin console* -> *content* -> search for the folder named *Activity Data* and you will see all previous uploaded files to that folder. The naming convention is a simple date/time string, derived from the exact instance the file was uploaded.  
 *Should you have trouble with the autostart feature, you can run the program ```htop``` look for the running script, take note of it's process id, and then run the following ```sudo strace -pXXX -s9999 -e write``` where XXX is the given process id.*
   
-17) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
+18) The code is fully commented and very self explanatory. I would recommend reading through all of it, starting with blue.py to get a better understanding of how the lifecycle of this program works. If you don't feel like reading through the code, you can always check on the Box folder, and refresh it every now and again to view the updated information.   
   
 **Thanks for reading!**
 
