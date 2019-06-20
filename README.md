@@ -213,7 +213,7 @@ There is also a program you will need to run in the event that you would like to
 cd /home/pi/Activity_Monitor_Base_Station/base_station
 python3 interval_input.py
 ```
-This small program will ensure your data is entered, and formatted correctly! **Please be aware that the only time changes will take effect is after a hard reset, such unplugging the base station!**  
+This small program will ensure your data is entered, and formatted correctly! **Please be aware that the only time this will take effect is after a hard reset, such unplugging the base station!**  
   
 14) Now you can successfully run the program manually by issuing the following...  
 ```sudo python3 /home/pi/Activity_Monitor_Base_Station/base_station/blue.py```  
