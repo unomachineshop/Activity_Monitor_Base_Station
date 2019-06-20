@@ -207,7 +207,8 @@ READ_CHAR_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca92"
 ```  
 Edit the values to match what you found above, **Ensure Activity_MAC is in lower case**, save the file!  
   
-13) There is also a program you will need to run in the event that you would like to update the interval in which the collections are done. This is represented by 10 integers, seperated by comma's. The integers signify the minutes for each collection period. Anytime you would like to update these values, you will simply have to repeat the commands shown below. You will need to SSH in, or have a keyboard and monitor available to use, in order to visually see what you are doing.  
+13) **IMPORTANT STEP FOR RESEARCHERS!**
+There is also a program you will need to run in the event that you would like to update the interval in which the collections are done. This is represented by 10 integers, seperated by comma's. The integers signify the minutes for each collection period. Anytime you would like to update these values, you will simply have to repeat the commands shown below. You will need to SSH in, or have a keyboard and monitor available to use, in order to visually see what you are doing.  
 ```
 cd /home/pi/Activity_Monitor_Base_Station/base_station
 python3 interval_input.py
