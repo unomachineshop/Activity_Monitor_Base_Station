@@ -211,17 +211,6 @@ def send_command(peripheral, uuid, cmd):
     c = peripheral.getCharacteristics(uuid=uuid)[0]
     c.write(p)
 
-def send_command2(peripheral, uuid, cmd): 
-    dc = "<i"
-    d = cmd.encode()
-
-    # Pack information
-    p = pack(dc, d)
-
-    # Send to device
-    c = peripheral.getCharacteristics(uuid=uuid)[0]
-    c.write(p)
-
 ############################################################
 # Name: receive_data
 # Desc: Receives data from the peripheral. Returns it as a
