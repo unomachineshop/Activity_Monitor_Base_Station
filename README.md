@@ -104,7 +104,7 @@ allow us to remove the need for a stand alone keyboard, monitor, hdmi cable, etc
 We will first need gather some information on the Raspberry Pi side.  
 **Value1:** If you are using wifi, this value will be *wlan0*, if you are using ethernet, this value will be *eth0*  
 A check using ```ifconfig``` will show which network adapters are available, occasionally these can be named differently if you ever agreed to *predictable naming interfaces*.  
-**Value2:** ```ip -4 addr show | grep``` Take note of the IP address and network size, something like 10.12.18.255/16  
+**Value2:** ```ip -4 addr show | grep inet``` Take note of the IP address and network size, something like 10.12.18.255/16  
 **Value3:** ```ip route | grep default | awk '{print $3}'``` Take note of address of your router/gateway, something like 10.12.255.255  
 **Value4:** ```cat /etc/resolv.conf``` Take note of the nameserver value, something like 137.48.1.255  
   
